@@ -48,10 +48,10 @@ def only_admin(func: Callable) -> Callable:
         chat_id = message.chat.id
         user_id = message.from_user.id
         try:
-            admin_only = bool(await dbs.get_chat(chat_id)[0]["only_admin"])
+            admin_only = bool((await dbs.get_chat(chat_id))["only_admin"])
         except IndexError:
             await dbs.get_chat(chat_id)
-            admin_only = bool(await dbs.get_chat(chat_id)[0]["only_admin"])
+            admin_only = bool((await dbs.get_chat(chat_id))["only_admin"])
         if admin_only:
             member = await message.chat.get_member(user_id)
             if (
@@ -82,10 +82,10 @@ def del_cmd(func: Callable) -> Callable:
         if message.chat.type == "private":
             return await func(client, message)
         try:
-            delete_cmd = bool(await dbs.get_chat(chat_id)[0]["del_cmd_mode"])
+            delete_cmd = bool((await dbs.get_chat(chat_id))["del_cmd_mode"])
         except IndexError:
             await dbs.add_chat(chat_id)
-            delete_cmd = bool(await dbs.get_chat(chat_id)[0]["del_cmd_mode"])
+            delete_cmd = bool((await dbs.get_chat(chat_id))["del_cmd_mode"])
         if delete_cmd:
             try:
                 await client.delete_messages(chat_id, message.message_id)
@@ -103,10 +103,11 @@ def check_player(func: Callable) -> Callable:
         if message.command[0] == "player":
             return await func(client, message)
         try:
-            player_mode = bool(await dbs.get_chat(chat_id)[0]["player_mode"])
+            get_player_mode = (await dbs.get_chat(chat_id))["player_mode"]
+            player_mode = bool(get_player_mode)
         except IndexError:
             await dbs.add_chat(chat_id)
-            player_mode = bool(await dbs.get_chat(chat_id)[0]["player_mode"])
+            player_mode = bool((await dbs.get_chat(chat_id))["player_mode"])
         if player_mode:
             return await func(client, message)
         return await Bot().send_message(chat_id, "player_is_nonactive")
